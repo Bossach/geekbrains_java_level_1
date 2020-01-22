@@ -4,7 +4,7 @@ package lesson_2;
 
 import java.util.Arrays;
 
-public class Main {
+public class Task5 {
 	public static void main(String[] args) {
 		
 		int arrSize = 14;

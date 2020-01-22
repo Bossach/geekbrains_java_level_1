@@ -4,7 +4,7 @@ package lesson_2;
 
 import java.util.Arrays;
 
-public class Main {
+public class Task4 {
 	public static void main(String[] args) {
 		
 		int squareArrSize = 8;
