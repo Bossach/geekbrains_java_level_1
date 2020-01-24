@@ -19,16 +19,23 @@ public class TicTacToeNew {
     private static Random rand = new Random();
 
     public static void main(String[] args) {
-        initMap();
-        printMap();
 
-        IS_PLAYER_HUMAN[0] = true; //Make first player human
+        IS_PLAYER_HUMAN[0] = true; //Make first player human // закомментировать чтобы играл только ИИ
+        //IS_PLAYER_HUMAN[1] = true; //Make second player human // раскомментировать чтобы играть вдвоём
 
-        playGame();
+        String input;
 
+        do {
+            playGame();
+
+            System.out.print("Повторить? ( 0 - выход , что угодно - повторить игру) : ");
+            input = scan.nextLine();
+        } while ( !input.equals("0") );
     }
 
     private static void playGame() {
+        initMap();
+        printMap();
 
         while ( true ) {
             for (int player = 1; player <= PLAYERS_COUNT; player++) {
@@ -93,111 +100,136 @@ public class TicTacToeNew {
 
 
         char sym = PLAYER_CHARS[ player ];
-        int counter;
-        int DOTS_MATCH = DOTS_TO_WIN - 1;
+        String line;
+
+        String winLine = ""; //создаём образец выигрышной комбинации
+        for (int i = 0; i < DOTS_TO_WIN; i++) {
+            winLine += sym;
+        }
 
         //horisontal checks
         for (int i = 0; i < SIZE_X; i++) {
-            counter = 0;
+            line = "";
             for (int j = 0; j < SIZE_Y; j++) {
-                if ( map[i][j] == sym ) {
-                    counter++;
+                //Превращаем линию в строку
+                if ( isCellValid( i , j ) ) {
+                    line += map[i][j];
                 } else {
-                    counter = 0;
+                    line += " ";
                 }
-                if ( counter >= DOTS_MATCH ) {
-                    //тут ищем точку
-                    if ( isCellEmpty( i , j + 1) ){ //если можем походить "впереди" предвыигрышной последовательности
-                        point[0] = i;
-                        point[1] = j + 1;
-                        return point;
-                    } else if ( isCellEmpty( i ,j - DOTS_MATCH ) ) { //если можем походить "сзади" предвыигрышной последовательности
-                        point[0] = i;
-                        point[1] = j - DOTS_MATCH;
-                        return point;
-                    }
+                //
+            }
+            //ищем в линии выигрышный ход
+            if ( line.trim().length() >= DOTS_TO_WIN ) { //если в этой линии вообще поместится выигрышная комбинация
+                char[] lineArray = line.toCharArray();
+                char[] tempArray;
 
+                for (int j = 0; j < lineArray.length ; j++) { //пробегаемся по строке
+                    if( isCellEmpty( i , j ) ) { //если сюда можно походить
+                        tempArray = lineArray.clone();
+                        tempArray[j] = sym ; //пробуем ходить
+                        if ( String.valueOf(tempArray).contains(winLine) ) {  //если получилась выигрышная строка
+                            point[0] = i;
+                            point[1] = j;
+                            return point;
+                        }
+                    }
                 }
             }
+            //
         }
         //vertical checks
         for (int i = 0; i < SIZE_Y; i++) {
-            counter = 0;
+            line = "";
             for (int j = 0; j < SIZE_X; j++) {
-                if ( map[j][i] == sym ) {
-                    counter++;
+                //Превращаем линию в строку
+                if ( isCellValid( j , i ) ) {
+                    line += map[j][i];
                 } else {
-                    counter = 0;
+                    line += " ";
                 }
-                if ( counter >= DOTS_MATCH ) {
+                //
+            }
+            //ищем в линии выигрышный ход
+            if ( line.trim().length() >= DOTS_TO_WIN ) { //если в этой линии вообще поместится выигрышная комбинация
+                char[] lineArray = line.toCharArray();
+                char[] tempArray;
 
-                    //тут ищем точку
-                    if ( isCellEmpty( j + 1 , i ) ){ //если можем походить "впереди" предвыигрышной последовательности
-                        point[0] = j + 1;
-                        point[1] = i;
-                        return point;
-                    } else if ( isCellEmpty( j - DOTS_MATCH , i ) ) { //если можем походить "сзади" предвыигрышной последовательности
-                        point[0] = j - DOTS_MATCH;
-                        point[1] = i;
-                        return point;
+                for (int j = 0; j < lineArray.length ; j++) { //пробегаемся по строке
+                    if( isCellEmpty( j , i ) ) { //если сюда можно походить
+                        tempArray = lineArray.clone();
+                        tempArray[j] = sym ; //пробуем ходить
+                        if ( String.valueOf(tempArray).contains(winLine) ) {  //если получилась выигрышная строка
+                            point[0] = j;
+                            point[1] = i;
+                            return point;
+                        }
                     }
-
                 }
             }
+            //
         }
         //diagonal one checks
         for (int i = 0 - SIZE_Y; i < SIZE_X; i++) {
-            counter = 0;
+            line = "";
             for (int j = 0; j < SIZE_Y; j++) {
-                if ( i + j >= 0 && i + j < SIZE_X ) {
-                    if ( map[i + j][j] == sym ) {
-                        counter++;
-                    } else {
-                        counter = 0;
-                    }
-                    if ( counter >= DOTS_MATCH ) {
+                //Превращаем линию в строку
+                if ( isCellValid( i + j , j ) ) {
+                    line += map[i + j][j];
+                } else {
+                    line += " ";
+                }
+                //
+            }
+            //ищем в линии выигрышный ход
+            if ( line.trim().length() >= DOTS_TO_WIN ) { //если в этой линии вообще поместится выигрышная комбинация
+                char[] lineArray = line.toCharArray();
+                char[] tempArray;
 
-                        //тут ищем точку
-                        if ( isCellEmpty( i + j + 1 , j + 1 ) ){ //если можем походить "впереди" предвыигрышной последовательности
-                            point[0] = i + j + 1;
-                            point[1] = j + 1;
-                            return point;
-                        } else if ( isCellEmpty( i + j - DOTS_MATCH , j - DOTS_MATCH ) ) { //если можем походить "сзади" предвыигрышной последовательности
-                            point[0] = i + j - DOTS_MATCH;
-                            point[1] = j - DOTS_MATCH;
+                for (int j = 0; j < lineArray.length ; j++) { //пробегаемся по строке
+                    if( isCellEmpty( i + j , j ) ) { //если сюда можно походить
+                        tempArray = lineArray.clone();
+                        tempArray[j] = sym ; //пробуем ходить
+                        if ( String.valueOf(tempArray).contains(winLine) ) {  //если получилась выигрышная строка
+                            point[0] = i + j;
+                            point[1] = j;
                             return point;
                         }
-
                     }
                 }
             }
+            //
         }
         //diagonal two checks
         for (int i = 0; i < SIZE_X + SIZE_Y; i++) {
-            counter = 0;
+            line = "";
             for (int j = 0; j < SIZE_Y; j++) {
-                if (i - j >= 0 && i - j < SIZE_X) {
-                    if (map[i - j][j] == sym) {
-                        counter++;
-                    } else {
-                        counter = 0;
-                    }
-                    if (counter >= DOTS_MATCH) {
+                //Превращаем линию в строку
+                if ( isCellValid( i - j , j ) ) {
+                    line += map[i - j][j];
+                } else {
+                    line += " ";
+                }
+                //
+            }
+            //ищем в линии выигрышный ход
+            if ( line.trim().length() >= DOTS_TO_WIN ) { //если в этой линии вообще поместится выигрышная комбинация
+                char[] lineArray = line.toCharArray();
+                char[] tempArray;
 
-                        //тут ищем точку
-                        if ( isCellEmpty( i - ( j + 1 ) , j + 1) ){ //если можем походить "впереди" предвыигрышной последовательности
-                            point[0] = i - ( j + 1 );
-                            point[1] = j + 1;
-                            return point;
-                        } else if ( isCellEmpty( i - ( j - DOTS_MATCH ) , j - DOTS_MATCH ) ) { //если можем походить "сзади" предвыигрышной последовательности
-                            point[0] = i - ( j - DOTS_MATCH );
-                            point[1] = j - DOTS_MATCH;
+                for (int j = 0; j < lineArray.length ; j++) { //пробегаемся по строке
+                    if( isCellEmpty( i - j , j ) ) { //если сюда можно походить
+                        tempArray = lineArray.clone();
+                        tempArray[j] = sym ; //пробуем ходить
+                        if ( String.valueOf(tempArray).contains(winLine) ) {  //если получилась выигрышная строка
+                            point[0] = i - j;
+                            point[1] = j;
                             return point;
                         }
-
                     }
                 }
             }
+            //
         }
 
 
@@ -255,10 +287,14 @@ public class TicTacToeNew {
     }
 
     private static boolean isCellEmpty(int x, int y) {
-        if ( x >= 0 && y >= 0 && x < SIZE_X && y < SIZE_Y ) {
+        if ( isCellValid( x , y ) ) {
             return map[x][y] == PLAYER_CHARS[0];
         }
         return false;
+    }
+
+    private static boolean isCellValid( int x , int y ) {
+        return x >= 0 && y >= 0 && x < SIZE_X && y < SIZE_Y;
     }
 
     private static boolean checkWin(int player) {
