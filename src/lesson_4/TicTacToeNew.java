@@ -4,13 +4,15 @@ import java.util.Random;
 import java.util.Scanner;
 
 public class TicTacToeNew {
-    private static final int SIZE_X = 3;
-    private static final int SIZE_Y = 3;
-    private static final int DOTS_TO_WIN = 3;
+    private static final int SIZE_X = 5;
+    private static final int SIZE_Y = 5;
+    private static final int DOTS_TO_WIN = 4;
 
-    private static final int PLAYERS_COUNT = 2;
+    private static final int PLAYERS_COUNT = 2; //!! Чтобы добавить более 4 игроков дописать вручную в массив PLAYER_CHARS символы
+    private static final char[] PLAYER_CHARS = { '•' , 'X' , 'O' , '#' , 'Δ' } ;  //PLAYER_CHARS[ 0 ] is empty, 4 players available default
+
     private static boolean[] IS_PLAYER_HUMAN = new boolean[PLAYERS_COUNT];  //All players is AI by default
-    private static final char[] PLAYER_CHARS = { '•' , 'X' , 'O' } ;  //PLAYER_CHARS[ 0 ] is empty
+
 
     private static char[][] map = new char[SIZE_X][SIZE_Y];
     private static Scanner scan = new Scanner(System.in);
@@ -125,16 +127,59 @@ public class TicTacToeNew {
 
     private static boolean checkWin(int player) {
         char sym = PLAYER_CHARS[ player ];
-        if ( map[0][0] == sym && map[0][1] == sym && map [0][2] == sym ) return true;
-        if ( map[1][0] == sym && map[1][1] == sym && map [1][2] == sym ) return true;
-        if ( map[2][0] == sym && map[2][1] == sym && map [2][2] == sym ) return true;
-
-        if ( map[0][0] == sym && map[1][0] == sym && map [2][0] == sym ) return true;
-        if ( map[0][1] == sym && map[1][1] == sym && map [2][1] == sym ) return true;
-        if ( map[0][2] == sym && map[1][2] == sym && map [2][2] == sym ) return true;
-
-        if ( map[0][0] == sym && map[1][1] == sym && map [2][2] == sym ) return true;
-        if ( map[0][2] == sym && map[1][1] == sym && map [2][0] == sym ) return true;
+        int counter;
+        //horisontal checks
+        for (int i = 0; i < SIZE_X; i++) {
+            counter = 0;
+            for (int j = 0; j < SIZE_Y; j++) {
+                if ( map[i][j] == sym ) {
+                    counter++;
+                } else {
+                    counter = 0;
+                }
+                if ( counter >= DOTS_TO_WIN ) return true;
+            }
+        }
+        //vertical checks
+        for (int i = 0; i < SIZE_Y; i++) {
+            counter = 0;
+            for (int j = 0; j < SIZE_X; j++) {
+                if ( map[j][i] == sym ) {
+                    counter++;
+                } else {
+                    counter = 0;
+                }
+                if ( counter >= DOTS_TO_WIN ) return true;
+            }
+        }
+        //diagonal one checks
+        for (int i = 0 - SIZE_Y; i < SIZE_X; i++) {
+            counter = 0;
+            for (int j = 0; j < SIZE_Y; j++) {
+                if ( i + j >= 0 && i + j < SIZE_X ) {
+                    if ( map[i + j][j] == sym ) {
+                        counter++;
+                    } else {
+                        counter = 0;
+                    }
+                    if ( counter >= DOTS_TO_WIN ) return true;
+                }
+            }
+        }
+        //diagonal two checks
+        for (int i = 0; i < SIZE_X + SIZE_Y; i++) {
+            counter = 0;
+            for (int j = 0; j < SIZE_Y; j++) {
+                if ( i - j >= 0 && i - j < SIZE_X ) {
+                    if ( map[i - j][j] == sym ) {
+                        counter++;
+                    } else {
+                        counter = 0;
+                    }
+                    if ( counter >= DOTS_TO_WIN ) return true;
+                }
+            }
+        }
 
         return false;
     }
