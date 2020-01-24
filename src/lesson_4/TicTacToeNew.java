@@ -4,9 +4,9 @@ import java.util.Random;
 import java.util.Scanner;
 
 public class TicTacToeNew {
-    private static final int SIZE_X = 5;
-    private static final int SIZE_Y = 5;
-    private static final int DOTS_TO_WIN = 4;
+    private static final int SIZE_X = 3;
+    private static final int SIZE_Y = 3;
+    private static final int DOTS_TO_WIN = 3;
 
     private static final int PLAYERS_COUNT = 2; //!! Чтобы добавить более 4 игроков дописать вручную в массив PLAYER_CHARS символы
     private static final char[] PLAYER_CHARS = { '•' , 'X' , 'O' , '#' , 'Δ' } ;  //PLAYER_CHARS[ 0 ] is empty, 4 players available default
@@ -58,17 +58,150 @@ public class TicTacToeNew {
         return false;
     }
 
-    private static void aiTurn(int player) {
-        int x;
-        int y;
+    private static void aiTurn(int thisPlayer) {
 
-        System.out.printf("Ход компьютера \"%c\".\n" , PLAYER_CHARS[player] );
-        do {
-            x = rand.nextInt(SIZE_X);
-            y = rand.nextInt(SIZE_Y);
-        } while ( !isCellEmpty(x, y) );
+        int[] pt; //точка с координатами
 
-        map[x][y] = PLAYER_CHARS[player];
+        System.out.printf("Ход компьютера \"%c\".\n" , PLAYER_CHARS[thisPlayer] );
+
+
+        pt = winPoint( thisPlayer );  //ищем победный ход
+
+        if ( pt[0] == -1 ) {  //если не нашли ищем кого заблокировать
+            for (int player = ( thisPlayer + 1 ) % ( PLAYERS_COUNT + 1 ) ; player != thisPlayer ; player = ( player + 1 ) % ( PLAYERS_COUNT + 1) ) {  //пробегаемся по всем игрокам кроме себя, начиная с тех кто ходит следующим
+                if ( player != 0 ) {  //пропускаем "нулевого" пустого игрока ( нечего блокировать ходы пустого места :) )
+                    pt = winPoint( player );  //ищем победную позицию для соперника
+                    if ( pt[0] != -1 ) break;  //если уже нашли выходим из цикла
+                }
+            }
+        }
+
+        if ( pt[0] == -1) {  //если никаких полезных позиций не найдено, ходим рандомно
+            do {
+                pt[0] = rand.nextInt(SIZE_X);
+                pt[1] = rand.nextInt(SIZE_Y);
+            } while (!isCellEmpty(pt[0], pt[1]));
+        }
+
+
+        map[ pt[0] ][ pt[1] ] = PLAYER_CHARS[thisPlayer];
+    }
+
+    private static int[] winPoint(int player) {  //Возвращает координатыы выигрышной точки в виде массива int[] { x , y } для игрока player. Если такой нет, то возвращается { -1 , -1 }
+
+        int[] point = new int[] { -1 , -1 };
+
+
+        char sym = PLAYER_CHARS[ player ];
+        int counter;
+        int DOTS_MATCH = DOTS_TO_WIN - 1;
+
+        //horisontal checks
+        for (int i = 0; i < SIZE_X; i++) {
+            counter = 0;
+            for (int j = 0; j < SIZE_Y; j++) {
+                if ( map[i][j] == sym ) {
+                    counter++;
+                } else {
+                    counter = 0;
+                }
+                if ( counter >= DOTS_MATCH ) {
+                    //тут ищем точку
+                    if ( isCellEmpty( i , j + 1) ){ //если можем походить "впереди" предвыигрышной последовательности
+                        point[0] = i;
+                        point[1] = j + 1;
+                        return point;
+                    } else if ( isCellEmpty( i ,j - DOTS_MATCH ) ) { //если можем походить "сзади" предвыигрышной последовательности
+                        point[0] = i;
+                        point[1] = j - DOTS_MATCH;
+                        return point;
+                    }
+
+                }
+            }
+        }
+        //vertical checks
+        for (int i = 0; i < SIZE_Y; i++) {
+            counter = 0;
+            for (int j = 0; j < SIZE_X; j++) {
+                if ( map[j][i] == sym ) {
+                    counter++;
+                } else {
+                    counter = 0;
+                }
+                if ( counter >= DOTS_MATCH ) {
+
+                    //тут ищем точку
+                    if ( isCellEmpty( j + 1 , i ) ){ //если можем походить "впереди" предвыигрышной последовательности
+                        point[0] = j + 1;
+                        point[1] = i;
+                        return point;
+                    } else if ( isCellEmpty( j - DOTS_MATCH , i ) ) { //если можем походить "сзади" предвыигрышной последовательности
+                        point[0] = j - DOTS_MATCH;
+                        point[1] = i;
+                        return point;
+                    }
+
+                }
+            }
+        }
+        //diagonal one checks
+        for (int i = 0 - SIZE_Y; i < SIZE_X; i++) {
+            counter = 0;
+            for (int j = 0; j < SIZE_Y; j++) {
+                if ( i + j >= 0 && i + j < SIZE_X ) {
+                    if ( map[i + j][j] == sym ) {
+                        counter++;
+                    } else {
+                        counter = 0;
+                    }
+                    if ( counter >= DOTS_MATCH ) {
+
+                        //тут ищем точку
+                        if ( isCellEmpty( i + j + 1 , j + 1 ) ){ //если можем походить "впереди" предвыигрышной последовательности
+                            point[0] = i + j + 1;
+                            point[1] = j + 1;
+                            return point;
+                        } else if ( isCellEmpty( i + j - DOTS_MATCH , j - DOTS_MATCH ) ) { //если можем походить "сзади" предвыигрышной последовательности
+                            point[0] = i + j - DOTS_MATCH;
+                            point[1] = j - DOTS_MATCH;
+                            return point;
+                        }
+
+                    }
+                }
+            }
+        }
+        //diagonal two checks
+        for (int i = 0; i < SIZE_X + SIZE_Y; i++) {
+            counter = 0;
+            for (int j = 0; j < SIZE_Y; j++) {
+                if (i - j >= 0 && i - j < SIZE_X) {
+                    if (map[i - j][j] == sym) {
+                        counter++;
+                    } else {
+                        counter = 0;
+                    }
+                    if (counter >= DOTS_MATCH) {
+
+                        //тут ищем точку
+                        if ( isCellEmpty( i - ( j + 1 ) , j + 1) ){ //если можем походить "впереди" предвыигрышной последовательности
+                            point[0] = i - ( j + 1 );
+                            point[1] = j + 1;
+                            return point;
+                        } else if ( isCellEmpty( i - ( j - DOTS_MATCH ) , j - DOTS_MATCH ) ) { //если можем походить "сзади" предвыигрышной последовательности
+                            point[0] = i - ( j - DOTS_MATCH );
+                            point[1] = j - DOTS_MATCH;
+                            return point;
+                        }
+
+                    }
+                }
+            }
+        }
+
+
+        return point;
     }
 
     private static void humanTurn(int player) {
@@ -122,7 +255,10 @@ public class TicTacToeNew {
     }
 
     private static boolean isCellEmpty(int x, int y) {
-        return map[x][y] == PLAYER_CHARS[0];
+        if ( x >= 0 && y >= 0 && x < SIZE_X && y < SIZE_Y ) {
+            return map[x][y] == PLAYER_CHARS[0];
+        }
+        return false;
     }
 
     private static boolean checkWin(int player) {
