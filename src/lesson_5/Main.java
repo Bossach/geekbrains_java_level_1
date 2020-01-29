@@ -13,16 +13,17 @@ public class Main {
 
         Random rand = new Random();
         //Берём для примера id рандомного сотрудника
-        int id = Person.getAllPersons().get( rand.nextInt(Person.getAllPersons().size()) ).getId();
+        int id = Person.getAllPersons().get(rand.nextInt(Person.getAllPersons().size())).getId();
         System.out.println("Выводим информацию о сотруднике с id " + id + " в консоль:");
-        Person a = Person.getPersonById( id ); //id сотруднику присваивается при создани
+        Person a = Person.getPersonById(id); //id сотруднику присваивается при создани
         a.print();
         //^эквивалентный вариант: System.out.println(a);
 
         System.out.println("выводим сотрудников старше 40 лет:");
-        for (Person person : Person.getAllPersons() ) {
-            if ( person.getAge() > 40 )
-                System.out.println( person );
+        for (Person person : Person.getAllPersons()) {
+            if (person.getAge() > 40) {
+                System.out.println(person);
+            }
         }
     }
 }

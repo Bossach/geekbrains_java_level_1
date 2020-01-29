@@ -7,7 +7,7 @@ import java.util.stream.Collectors;
 
 public class Person {
     private static ArrayList<Person> allPersons = new ArrayList<Person>();  //тут хранятся все созданные объекты
-    private static int id_counter;  //Нужен чтобы присваивать уникальный id
+    private static int idCounter;  //Нужен чтобы присваивать уникальный id
     private String name;
     private String position;
     private String email;
@@ -16,14 +16,14 @@ public class Person {
     private int age;
     private int id;
 
-    public Person (String name, String position, String email, String phone, int salary, int age) {
+    public Person(String name, String position, String email, String phone, int salary, int age) {
         this.name = name;
         this.position = position;
         this.email = email;
         this.phone = phone;
         this.salary = salary;
         this.age = age;
-        this.id = id_counter++; //Присваиваем id
+        this.id = idCounter++; //Присваиваем id
         allPersons.add(this);   //Записываем в массив
     }
 
@@ -60,24 +60,25 @@ public class Person {
     }
 
     public static Person getPersonById(int id) {
-        List<Person> list = allPersons.stream().filter( x -> x.id == id ).collect(Collectors.toList());
-        if( list.size() != 0 )
+        List<Person> list = allPersons.stream().filter(x -> x.id == id).collect(Collectors.toList());
+        if (list.size() != 0) {
             /*Думаю не самое изящное решение, если один id окажется у некольких сотрудников, (чего по идее
             никак не должно случиться) то метод вернёт только первого найденного с данным id*/
             return list.get(0);
+        }
         return null;
     }
 
     public static void deletePersonById(int id) {
         Person person = getPersonById(id);
-        if ( person == null ) {
+        if (person == null) {
             System.out.println("Invalid id.");
             return;
         }
         System.out.print(person + "\n^Удалить \"" + person.name +
                 "\" из списка? (Напишите \"удалить\" для подтверждения): ");
         Scanner scan = new Scanner(System.in);
-        if ( scan.nextLine().toLowerCase().equals("удалить") ) {
+        if (scan.nextLine().toLowerCase().equals("удалить")) {
             allPersons.remove(person);
             System.out.println("Запись \"" + person.name + "\" удалена.");
             return;
@@ -90,7 +91,7 @@ public class Person {
     }
 
     @Override
-    public String toString(){
+    public String toString() {
         return "Id" + id + ": " + name + ", " + position + ", e-mail: " + email +
                 ", телефон: " + phone + ", з/п: " + salary + ", возраст: " + age;
     }
