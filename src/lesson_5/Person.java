@@ -28,7 +28,7 @@ public class Person {
     }
 
     public static List<Person> getAllPersons() {
-        return allPersons;
+        return new ArrayList<Person>(allPersons);
     }
 
     public String getName() {
