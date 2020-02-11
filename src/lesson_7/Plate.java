@@ -25,7 +25,7 @@ public class Plate {
     }
 
     public boolean decreaseFood(int n) {
-    	if (this.food <= n) {
+    	if (this.food >= n) {
         	this.food -= n;
         	return true;
     	} else {
