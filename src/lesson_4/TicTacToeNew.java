@@ -1,5 +1,7 @@
 package lesson_4;
 
+import lesson_8.GToeWindow;
+
 import java.util.Random;
 import java.util.Scanner;
 
@@ -12,7 +14,9 @@ public class TicTacToeNew {
     private static final char[] PLAYER_CHARS = { '•' , 'X' , 'O' , '#' , 'Δ' } ;  //PLAYER_CHARS[ 0 ] is empty, 4 players available default
 
     private static boolean[] IS_PLAYER_HUMAN = new boolean[PLAYERS_COUNT];  //All players is AI by default
-
+    private static final boolean IS_GRAPHICS = true;  //Флаг работы в графическом режиме
+    private static GToeWindow window;
+    private static boolean isGameEnd = false;
 
     private static char[][] map = new char[SIZE_X][SIZE_Y];
     private static Scanner scan = new Scanner(System.in);
@@ -22,6 +26,14 @@ public class TicTacToeNew {
 
         IS_PLAYER_HUMAN[0] = true; //Make first player human // закомментировать чтобы играл только ИИ
         //IS_PLAYER_HUMAN[1] = true; //Make second player human // раскомментировать чтобы играть вдвоём
+
+        if (IS_GRAPHICS) {
+            window = new GToeWindow(SIZE_X, SIZE_Y);
+            while (true) {
+                playGame();
+            }
+        }
+
 
         String input;
 
@@ -36,10 +48,22 @@ public class TicTacToeNew {
     private static void playGame() {
         initMap();
         printMap();
+        isGameEnd = false;
 
-        while ( true ) {
+        while ( true) {
             for (int player = 1; player <= PLAYERS_COUNT; player++) {
-                 if ( playerTurn( player ) ) return;
+
+                if (!isGameEnd) {
+                    isGameEnd = playerTurn(player);
+                }
+                if (IS_GRAPHICS) {                  //если графика ждём кнопки рестарт
+                    if (window.getRestartFlag()) {
+                        window.resRestartFlag();
+                        return;
+                    }
+                } else if (isGameEnd) {
+                    return;
+                }       //если не графика и ира окончена рестартуем автоматом
             }
         }
     }
@@ -55,22 +79,34 @@ public class TicTacToeNew {
         printMap();
 
         if ( checkWin( player ) ) {
-            System.out.printf("Победил игрок \"%c\"!\n", PLAYER_CHARS[player] );
+            message("Победил игрок \"" + PLAYER_CHARS[player] + "\"!\n");
             return true;
         }
         if ( checkDraw() ) {
-            System.out.println("Ничья!");
+            message("Ничья!");
             return true;
         }
         return false;
+    }
+
+    private static void message(String mes) {
+        if (IS_GRAPHICS) {
+            window.GPrintMessage(mes);
+        } else {
+            System.out.println(mes);
+        }
     }
 
     private static void aiTurn(int thisPlayer) {
 
         int[] pt; //точка с координатами
 
-        System.out.printf("Ход компьютера \"%c\".\n" , PLAYER_CHARS[thisPlayer] );
+        message("Ход компьютера \"" + PLAYER_CHARS[thisPlayer] + "\".");
 
+        try {
+            Thread.sleep(600l);    //Искуственная задержка хода компьютера
+        } catch (InterruptedException e) {
+        }
 
         pt = winPoint( thisPlayer );  //ищем победный ход
 
@@ -238,7 +274,21 @@ public class TicTacToeNew {
 
     private static void humanTurn(int player) {
 
-        System.out.printf("Ход игрока \"%c\".\n" , PLAYER_CHARS[player] );
+        message("Ход игрока \"" + PLAYER_CHARS[player] + "\"");
+
+        if (IS_GRAPHICS) {
+            int[] pt = window.getPoint();
+
+            while(true) {
+                if (window.getRestartFlag()) return;
+                if(pt[0] != -1 && isCellEmpty(pt[0], pt[1])) {
+                    map[pt[0]][pt[1]] = PLAYER_CHARS[player];
+                    window.resPoint();
+                    return;
+                }
+                pt = window.getPoint();
+            }
+        }
 
         String input;
         int x;
@@ -376,6 +426,16 @@ public class TicTacToeNew {
     }
 
     private static void printMap() {
+
+        if (IS_GRAPHICS) {
+            for (int i = 0; i < SIZE_X; i++) {
+                for (int j = 0; j < SIZE_Y; j++) {
+                    window.GPrintField(map);
+                }
+            }
+            return;
+        }
+
         //head
         System.out.print("  ");
         for (int i = 0; i < SIZE_Y; i++) {
